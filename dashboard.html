@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - فاحص أرقام الهواتف</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2><i class="fas fa-phone"></i> فاحص الأرقام</h2>
+                </div>
+                <div class="nav-menu">
+                    <a href="dashboard.html" class="nav-link active">لوحة التحكم</a>
+                    <a href="orders.html" class="nav-link">الطلبات</a>
+                    <div class="user-info">
+                        <span id="userEmail"></span>
+                        <button onclick="logout()" class="btn btn-small">تسجيل خروج</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- User Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="remainingCredits">0</h3>
+                        <p>الفحوصات المتبقية</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="userPlan">-</h3>
+                        <p>الباقة الحالية</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalChecks">0</h3>
+                        <p>إجمالي الفحوصات</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phone Number Checker -->
+            <div class="checker-section">
+                <h2><i class="fas fa-search"></i> فحص أرقام الهواتف</h2>
+                
+                <div class="checker-tabs">
+                    <button class="tab-btn active" onclick="switchTab('single')">فحص رقم واحد</button>
+                    <button class="tab-btn" onclick="switchTab('bulk')">فحص ملف</button>
+                </div>
+                
+                <!-- Single Number Check -->
+                <div id="single-tab" class="tab-content active">
+                    <div class="checker-card">
+                        <form id="singleNumberForm">
+                            <div class="form-group">
+                                <label for="phoneNumber">
+                                    <i class="fas fa-phone"></i> رقم الهاتف
+                                </label>
+                                <input type="tel" id="phoneNumber" placeholder="مثال: +966501234567" required>
+                            </div>
+                            
+                            <div class="checker-options">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="checkNetwork" checked>
+                                    <span class="checkmark"></span>
+                                    فحص مشغل الشبكة
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="checkWhatsapp">
+                                    <span class="checkmark"></span>
+                                    فحص الواتساب
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="checkCountry" checked>
+                                    <span class="checkmark"></span>
+                                    معلومات البلد
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> فحص الرقم
+                            </button>
+                        </form>
+                        
+                        <div id="singleResult" class="result-card" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <!-- Bulk File Check -->
+                <div id="bulk-tab" class="tab-content">
+                    <div class="checker-card">
+                        <form id="bulkNumberForm">
+                            <div class="form-group">
+                                <label for="numberFile">
+                                    <i class="fas fa-file-upload"></i> ارفع ملف الأرقام
+                                </label>
+                                <input type="file" id="numberFile" accept=".txt,.csv" required>
+                                <small class="form-hint">يدعم ملفات .txt و .csv (رقم واحد في كل سطر)</small>
+                            </div>
+                            
+                            <div class="checker-options">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="bulkCheckNetwork" checked>
+                                    <span class="checkmark"></span>
+                                    فحص مشغل الشبكة
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="bulkCheckWhatsapp">
+                                    <span class="checkmark"></span>
+                                    فحص الواتساب
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="bulkCheckCountry" checked>
+                                    <span class="checkmark"></span>
+                                    معلومات البلد
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> رفع وفحص الملف
+                            </button>
+                        </form>
+                        
+                        <div id="bulkProgress" class="progress-container" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p id="progressText">جاري الفحص...</p>
+                        </div>
+                        
+                        <div id="bulkResult" class="result-card" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Check if user is logged in
+        const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+        if (!user.email) {
+            window.location.href = 'login.html';
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('remainingCredits').textContent = user.credits === -1 ? '∞' : user.credits;
+            document.getElementById('userPlan').textContent = getPlanName(user.subscription);
+            document.getElementById('totalChecks').textContent = user.totalChecks || 0;
+        });
+
+        // Single number form handler
+        document.getElementById('singleNumberForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const checkNetwork = document.getElementById('checkNetwork').checked;
+            const checkWhatsapp = document.getElementById('checkWhatsapp').checked;
+            const checkCountry = document.getElementById('checkCountry').checked;
+            
+            if (!hasCredits()) {
+                alert('نفدت فحوصاتك المتاحة. يرجى تجديد الاشتراك.');
+                return;
+            }
+            
+            const result = await checkPhoneNumber(phoneNumber, {
+                network: checkNetwork,
+                whatsapp: checkWhatsapp,
+                country: checkCountry
+            });
+            
+            displaySingleResult(result);
+            updateCredits();
+        });
+
+        // Bulk file form handler
+        document.getElementById('bulkNumberForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const file = document.getElementById('numberFile').files[0];
+            if (!file) return;
+            
+            const checkNetwork = document.getElementById('bulkCheckNetwork').checked;
+            const checkWhatsapp = document.getElementById('bulkCheckWhatsapp').checked;
+            const checkCountry = document.getElementById('bulkCheckCountry').checked;
+            
+            const numbers = await parseFile(file);
+            
+            if (!hasCredits(numbers.length)) {
+                alert(`تحتاج إلى ${numbers.length} فحص ولديك ${user.credits} فحص متاح.`);
+                return;
+            }
+            
+            await processBulkCheck(numbers, {
+                network: checkNetwork,
+                whatsapp: checkWhatsapp,
+                country: checkCountry
+            });
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+
+        async function checkPhoneNumber(number, options) {
+            // Simulate API call - replace with actual phone number validation API
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const result = {
+                number: number,
+                valid: true,
+                country: options.country ? getCountryInfo(number) : null,
+                network: options.network ? getNetworkInfo(number) : null,
+                whatsapp: options.whatsapp ? await checkWhatsAppStatus(number) : null
+            };
+            
+            return result;
+        }
+
+        function getCountryInfo(number) {
+            // Simple country detection based on prefix
+            const countryMap = {
+                '+966': { name: 'السعودية', flag: '🇸🇦', code: 'SA' },
+                '+971': { name: 'الإمارات', flag: '🇦🇪', code: 'AE' },
+                '+965': { name: 'الكويت', flag: '🇰🇼', code: 'KW' },
+                '+974': { name: 'قطر', flag: '🇶🇦', code: 'QA' },
+                '+973': { name: 'البحرين', flag: '🇧🇭', code: 'BH' },
+                '+968': { name: 'عمان', flag: '🇴🇲', code: 'OM' },
+                '+20': { name: 'مصر', flag: '🇪🇬', code: 'EG' },
+                '+962': { name: 'الأردن', flag: '🇯🇴', code: 'JO' }
+            };
+            
+            const prefix = Object.keys(countryMap).find(p => number.startsWith(p));
+            return prefix ? countryMap[prefix] : { name: 'غير معروف', flag: '❓', code: 'UN' };
+        }
+
+        function getNetworkInfo(number) {
+            // Simple network detection - replace with actual API
+            const networks = ['STC', 'موبايلي', 'زين', 'سلام', 'ليبارا'];
+            return networks[Math.floor(Math.random() * networks.length)];
+        }
+
+        async function checkWhatsAppStatus(number) {
+            // Simulate WhatsApp check - replace with actual WhatsApp API
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return Math.random() > 0.5;
+        }
+
+        function displaySingleResult(result) {
+            const resultDiv = document.getElementById('singleResult');
+            let html = `
+                <h3><i class="fas fa-phone"></i> نتيجة فحص الرقم</h3>
+                <div class="result-item">
+                    <strong>الرقم:</strong> ${result.number}
+                    <span class="status ${result.valid ? 'valid' : 'invalid'}">
+                        ${result.valid ? 'صالح' : 'غير صالح'}
+                    </span>
+                </div>
+            `;
+            
+            if (result.country) {
+                html += `
+                    <div class="result-item">
+                        <strong>البلد:</strong> ${result.country.flag} ${result.country.name}
+                    </div>
+                `;
+            }
+            
+            if (result.network) {
+                html += `
+                    <div class="result-item">
+                        <strong>مشغل الشبكة:</strong> ${result.network}
+                    </div>
+                `;
+            }
+            
+            if (result.whatsapp !== null) {
+                html += `
+                    <div class="result-item">
+                        <strong>الواتساب:</strong> 
+                        <span class="whatsapp-status ${result.whatsapp ? 'available' : 'not-available'}">
+                            ${result.whatsapp ? '✅ متوفر' : '❌ غير متوفر'}
+                        </span>
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        async function parseFile(file) {
+            const text = await file.text();
+            return text.split('\n')
+                      .map(line => line.trim())
+                      .filter(line => line && line.match(/^\+?\d+$/));
+        }
+
+        async function processBulkCheck(numbers, options) {
+            const progressContainer = document.getElementById('bulkProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const resultDiv = document.getElementById('bulkResult');
+            
+            progressContainer.style.display = 'block';
+            resultDiv.style.display = 'none';
+            
+            const results = [];
+            const total = numbers.length;
+            
+            for (let i = 0; i < numbers.length; i++) {
+                const number = numbers[i];
+                const result = await checkPhoneNumber(number, options);
+                results.push(result);
+                
+                const progress = ((i + 1) / total) * 100;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = `جاري الفحص... ${i + 1}/${total}`;
+                
+                await new Promise(resolve => setTimeout(resolve, 100)); // Throttle for demo
+            }
+            
+            progressContainer.style.display = 'none';
+            displayBulkResults(results);
+            updateCredits(total);
+        }
+
+        function displayBulkResults(results) {
+            const resultDiv = document.getElementById('bulkResult');
+            const validCount = results.filter(r => r.valid).length;
+            const whatsappCount = results.filter(r => r.whatsapp).length;
+            
+            let html = `
+                <h3><i class="fas fa-file-alt"></i> نتائج الفحص الجماعي</h3>
+                <div class="bulk-summary">
+                    <div class="summary-item">
+                        <strong>إجمالي الأرقام:</strong> ${results.length}
+                    </div>
+                    <div class="summary-item">
+                        <strong>الأرقام الصالحة:</strong> ${validCount}
+                    </div>
+                    <div class="summary-item">
+                        <strong>أرقام الواتساب:</strong> ${whatsappCount}
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button onclick="downloadResults('csv')" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> تحميل CSV
+                    </button>
+                    <button onclick="downloadResults('txt')" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> تحميل TXT
+                    </button>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+            
+            // Store results for download
+            window.lastResults = results;
+        }
+
+        function downloadResults(format) {
+            if (!window.lastResults) return;
+            
+            let content = '';
+            const filename = `phone_check_results.${format}`;
+            
+            if (format === 'csv') {
+                content = 'الرقم,صالح,البلد,مشغل الشبكة,الواتساب\n';
+                window.lastResults.forEach(result => {
+                    content += `${result.number},${result.valid ? 'نعم' : 'لا'},${result.country?.name || ''},${result.network || ''},${result.whatsapp ? 'نعم' : 'لا'}\n`;
+                });
+            } else {
+                window.lastResults.forEach(result => {
+                    content += `${result.number} - ${result.valid ? 'صالح' : 'غير صالح'}`;
+                    if (result.country) content += ` - ${result.country.name}`;
+                    if (result.network) content += ` - ${result.network}`;
+                    if (result.whatsapp !== null) content += ` - واتساب: ${result.whatsapp ? 'متوفر' : 'غير متوفر'}`;
+                    content += '\n';
+                });
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function hasCredits(needed = 1) {
+            return user.credits === -1 || user.credits >= needed;
+        }
+
+        function updateCredits(used = 1) {
+            if (user.credits !== -1) {
+                user.credits -= used;
+                user.totalChecks = (user.totalChecks || 0) + used;
+                
+                // Update storage
+                if (localStorage.getItem('user')) {
+                    localStorage.setItem('user', JSON.stringify(user));
+                } else {
+                    sessionStorage.setItem('user', JSON.stringify(user));
+                }
+                
+                // Update display
+                document.getElementById('remainingCredits').textContent = user.credits;
+                document.getElementById('totalChecks').textContent = user.totalChecks;
+            }
+        }
+
+        function getPlanName(plan) {
+            const plans = {
+                'basic': 'الأساسية',
+                'premium': 'المتقدمة',
+                'professional': 'الاحترافية'
+            };
+            return plans[plan] || 'غير محدد';
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
