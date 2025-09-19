@@ -1,37 +1,71 @@
 # Phone Number Checker - Installation & Setup Guide
 
-## Overview
+## 🌟 نظرة عامة - Overview
+
+هذا نظام شامل للتحقق من صحة أرقام الهواتف مع دعم العربية/الإنجليزية، يضم واجهة PHP خلفية، محرك التحقق Python، وواجهة JavaScript حديثة.
 
 This is a comprehensive phone number validation system with Arabic/English support, featuring a PHP backend, Python validation engine, and modern JavaScript frontend.
 
-## Features Implemented
+## ✨ المميزات المنفذة - Features Implemented
 
-### ✅ Core Features
-- **PHP Backend API** - Complete RESTful API for phone validation
-- **Python Integration** - libphonenumbers library for accurate validation
-- **Multilingual Support** - Arabic/English language switching
-- **User Authentication** - Username/password registration and login
-- **Guest Functionality** - Anonymous phone checking (50/day) with file upload
-- **Telegram Integration** - Account activation via bot (simulated)
-- **Dashboard System** - Full user control panel with statistics
-- **Real-time Notifications** - In-app and Telegram notifications
-- **Data Export** - CSV/TXT export for results
-- **3D Modern Design** - Professional UI with animations
+### ✅ المميزات الأساسية - Core Features
+- **🔧 واجهة PHP خلفية** - Complete RESTful API for phone validation
+- **🐍 تكامل Python** - libphonenumbers library for accurate validation  
+- **🌐 دعم متعدد اللغات** - Arabic/English language switching
+- **👤 مصادقة المستخدمين** - Username/password registration and login
+- **👥 وظائف الزوار** - Anonymous phone checking (50/day) with file upload
+- **📱 تكامل تيليجرام** - Account activation via bot (simulated)
+- **📊 نظام لوحة التحكم** - Full user control panel with statistics
+- **🔔 إشعارات فورية** - In-app and Telegram notifications
+- **📤 تصدير البيانات** - CSV/TXT export for results
+- **🎨 تصميم ثلاثي الأبعاد** - Professional UI with animations
 
-### 📊 Validation Capabilities
-- **Phone Number Analysis**: Country, carrier, type detection
-- **Bulk Processing**: Up to 1,000 numbers for registered users
-- **File Upload Support**: TXT and CSV formats
-- **Rate Limiting**: 50,000 monthly checks per user
-- **Real-time Results**: DataTables with export options
+### 📊 قدرات التحقق - Validation Capabilities
+- **📞 تحليل أرقام الهواتف**: اكتشاف البلد، المشغل، النوع
+- **📦 معالجة مجمعة**: حتى 1000 رقم للمستخدمين المسجلين
+- **📁 دعم رفع الملفات**: صيغ TXT و CSV
+- **⏱️ حدود المعدل**: 50000 فحص شهري لكل مستخدم
+- **⚡ نتائج فورية**: DataTables مع خيارات التصدير
 
-## Installation
+## 🚀 التثبيت السريع - Quick Installation
 
-### Prerequisites
-- **PHP 8.0+** with PDO extension
-- **Python 3.8+** with pip
-- **Web Server** (Apache/Nginx) or PHP built-in server
-- **Database** (MySQL recommended, SQLite fallback included)
+### الطريقة الأولى: استخدام سكريبت الإعداد التلقائي
+```bash
+# تحميل المشروع
+git clone https://github.com/MohamdHasan9631/phonenumberschecker.git
+cd phonenumberschecker
+
+# تشغيل سكريبت الإعداد التلقائي
+chmod +x setup.sh
+./setup.sh
+```
+
+### الطريقة الثانية: التثبيت اليدوي
+راجع القسم التالي للتثبيت خطوة بخطوة.
+
+## 📋 المتطلبات - Prerequisites
+
+### المتطلبات الأساسية - Basic Requirements
+- **💻 نظام التشغيل**: Windows, macOS, Linux
+- **🐘 PHP 8.0+** مع امتداد PDO - with PDO extension
+- **🐍 Python 3.8+** مع pip - with pip
+- **🌐 خادم ويب** - Web Server (Apache/Nginx) أو خادم PHP المدمج - or PHP built-in server
+- **🗄️ قاعدة بيانات** - Database (MySQL مستحسن - recommended، SQLite مدمج - fallback included)
+
+### فحص المتطلبات - Check Requirements
+```bash
+# فحص PHP
+php --version
+# يجب أن تحصل على PHP 8.0.0 أو أحدث
+
+# فحص Python  
+python3 --version
+# يجب أن تحصل على Python 3.8.0 أو أحدث
+
+# فحص pip
+pip --version
+# للتأكد من وجود مدير الحزم
+```
 
 ### Step 1: Clone Repository
 ```bash
