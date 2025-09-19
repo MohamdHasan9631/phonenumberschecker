@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إنشاء حساب - فاحص أرقام الهواتف</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/3d-effects.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -33,22 +35,12 @@
                 
                 <form id="registerForm" class="auth-form">
                     <div class="form-group">
-                        <label for="fullName"><i class="fas fa-user"></i> الاسم الكامل</label>
-                        <input type="text" id="fullName" name="fullName" required>
+                        <label for="username"><i class="fas fa-user"></i> <span data-translate="auth.username">اسم المستخدم</span></label>
+                        <input type="text" id="username" name="username" required minlength="3">
                     </div>
                     
                     <div class="form-group">
-                        <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone"><i class="fas fa-phone"></i> رقم الهاتف</label>
-                        <input type="tel" id="phone" name="phone" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password"><i class="fas fa-lock"></i> كلمة المرور</label>
+                        <label for="password"><i class="fas fa-lock"></i> <span data-translate="auth.password">كلمة المرور</span></label>
                         <div class="password-input">
                             <input type="password" id="password" name="password" required minlength="6">
                             <button type="button" class="password-toggle" onclick="togglePassword('password')">
@@ -61,21 +53,11 @@
                     <div class="form-group">
                         <label for="confirmPassword"><i class="fas fa-lock"></i> تأكيد كلمة المرور</label>
                         <div class="password-input">
-                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
                             <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="subscription"><i class="fas fa-crown"></i> اختر الباقة</label>
-                        <select id="subscription" name="subscription" required>
-                            <option value="">اختر باقة</option>
-                            <option value="basic">الباقة الأساسية - $10</option>
-                            <option value="premium">الباقة المتقدمة - $25</option>
-                            <option value="professional">الباقة الاحترافية - $50</option>
-                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -86,13 +68,12 @@
                         </label>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="newsletter">
-                            <span class="checkmark"></span>
-                            أريد استلام النشرة الإخبارية
-                        </label>
+                    <button type="submit" class="btn btn-primary btn-full" data-translate="auth.register">إنشاء الحساب</button>
+                    
+                    <div class="auth-footer">
+                        <p>لديك حساب بالفعل؟ <a href="login.html" data-translate="auth.login">تسجيل الدخول</a></p>
                     </div>
+                </form>
                     
                     <button type="submit" class="btn btn-primary btn-full">إنشاء الحساب</button>
                     
@@ -106,6 +87,7 @@
         </div>
     </main>
 
+    <script src="js/language.js"></script>
     <script src="script.js"></script>
     <script>
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
@@ -127,28 +109,40 @@
             submitBtn.disabled = true;
             
             try {
-                // Simulate API call - replace with actual registration
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                const response = await fetch('api/index.php?endpoint=register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: data.username,
+                        password: data.password,
+                        telegram_username: data.telegram_username
+                    })
+                });
                 
-                // Store user data
-                const user = {
-                    fullName: data.fullName,
-                    email: data.email,
-                    phone: data.phone,
-                    subscription: data.subscription,
-                    credits: getCreditsForSubscription(data.subscription)
-                };
+                const result = await response.json();
                 
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                showMessage('تم إنشاء الحساب بنجاح! سيتم توجيهك للدفع...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'orders.html?plan=' + data.subscription;
-                }, 2000);
+                if (result.success) {
+                    showMessage('تم إنشاء الحساب بنجاح! تحقق من التيليجرام للحصول على رمز التفعيل.', 'success');
+                    
+                    // Store registration data for activation
+                    localStorage.setItem('pendingActivation', JSON.stringify({
+                        username: data.username,
+                        user_id: result.data.user_id,
+                        activation_expires: result.data.activation_expires
+                    }));
+                    
+                    setTimeout(() => {
+                        window.location.href = 'activate.html';
+                    }, 2000);
+                } else {
+                    showMessage(result.error || 'حدث خطأ في إنشاء الحساب', 'error');
+                }
                 
             } catch (error) {
-                showMessage('حدث خطأ في إنشاء الحساب', 'error');
+                console.error('Registration error:', error);
+                showMessage('حدث خطأ في الاتصال بالسيرفر', 'error');
             } finally {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
