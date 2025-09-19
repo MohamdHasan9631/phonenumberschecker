@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فاحص أرقام الهواتف</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/3d-effects.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
     <header>
@@ -15,49 +18,122 @@
                     <h2><i class="fas fa-phone"></i> فاحص الأرقام</h2>
                 </div>
                 <div class="nav-menu">
-                    <a href="index.html" class="nav-link active">الرئيسية</a>
-                    <a href="login.html" class="nav-link">تسجيل الدخول</a>
-                    <a href="register.html" class="nav-link">إنشاء حساب</a>
+                    <a href="index.html" class="nav-link active" data-translate="nav.home">الرئيسية</a>
+                    <a href="login.html" class="nav-link" data-translate="nav.login">تسجيل الدخول</a>
+                    <a href="register.html" class="nav-link" data-translate="nav.register">إنشاء حساب</a>
                 </div>
             </div>
         </nav>
     </header>
 
     <main>
-        <section class="hero">
+        <section class="hero hero-3d">
+            <div class="hero-bg-animation"></div>
             <div class="container">
-                <h1>مرحباً بك في فاحص أرقام الهواتف</h1>
-                <p>اكتشف معلومات الأرقام مثل مشغل الشبكة والعلم وحالة الواتساب</p>
-                <div class="hero-buttons">
-                    <a href="login.html" class="btn btn-primary">ابدأ الآن</a>
-                    <a href="#features" class="btn btn-secondary">تعرف على المزيد</a>
+                <div class="hero-content">
+                    <h1 class="hero-title" data-translate="home.hero.title">مرحباً بك في فاحص أرقام الهواتف</h1>
+                    <p class="hero-subtitle" data-translate="home.hero.subtitle">اكتشف معلومات الأرقام مثل مشغل الشبكة والعلم وحالة الواتساب</p>
+                    
+                    <!-- Guest Phone Checker -->
+                    <div class="guest-checker">
+                        <div class="checker-card">
+                            <h3>Try for Free - Check up to 50 numbers per day</h3>
+                            <div class="phone-input-group">
+                                <input type="tel" id="guestPhoneInput" placeholder="+966501234567" data-translate="checker.phone_number">
+                                <button id="guestCheckBtn" class="btn btn-primary" data-translate="checker.check">
+                                    <i class="fas fa-search"></i> فحص
+                                </button>
+                            </div>
+                            <div class="file-upload-section">
+                                <label for="guestFileInput" class="file-upload-btn">
+                                    <i class="fas fa-upload"></i>
+                                    <span data-translate="checker.bulk_upload">Upload Text File (Max 100 numbers)</span>
+                                </label>
+                                <input type="file" id="guestFileInput" accept=".txt,.csv" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-buttons">
+                        <a href="login.html" class="btn btn-primary" data-translate="home.hero.start">ابدأ الآن</a>
+                        <a href="#features" class="btn btn-secondary" data-translate="home.hero.learn_more">تعرف على المزيد</a>
+                    </div>
+                </div>
+                
+                <!-- 3D Phone Animation -->
+                <div class="phone-3d-container">
+                    <div class="phone-3d">
+                        <div class="phone-screen">
+                            <div class="screen-content">
+                                <div class="check-animation">
+                                    <i class="fas fa-phone"></i>
+                                    <div class="signal-bars">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <div class="container">
+                <h3 data-translate="checker.results">النتائج</h3>
+                <div id="resultsContainer">
+                    <table id="resultsTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Phone Number</th>
+                                <th>Valid</th>
+                                <th>Country</th>
+                                <th>Carrier</th>
+                                <th>Type</th>
+                                <th>Flag</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="export-buttons">
+                    <button id="exportCSV" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button id="exportTXT" class="btn btn-secondary">
+                        <i class="fas fa-file-text"></i> Export TXT
+                    </button>
                 </div>
             </div>
         </section>
 
         <section id="features" class="features">
             <div class="container">
-                <h2>المميزات</h2>
+                <h2 data-translate="features.title">المميزات</h2>
                 <div class="features-grid">
                     <div class="feature-card">
                         <i class="fas fa-network-wired"></i>
-                        <h3>فحص مشغل الشبكة</h3>
-                        <p>اكتشف مشغل الشبكة لأي رقم هاتف</p>
+                        <h3 data-translate="features.network.title">فحص مشغل الشبكة</h3>
+                        <p data-translate="features.network.desc">اكتشف مشغل الشبكة لأي رقم هاتف</p>
                     </div>
                     <div class="feature-card">
                         <i class="fab fa-whatsapp"></i>
-                        <h3>فلترة الواتساب</h3>
-                        <p>تحقق من وجود رقم الهاتف على الواتساب</p>
+                        <h3 data-translate="features.whatsapp.title">فلترة الواتساب</h3>
+                        <p data-translate="features.whatsapp.desc">تحقق من وجود رقم الهاتف على الواتساب</p>
                     </div>
                     <div class="feature-card">
                         <i class="fas fa-file-text"></i>
-                        <h3>فحص ملفات الأرقام</h3>
-                        <p>ارفع ملف نصي وافحص جميع الأرقام دفعة واحدة</p>
+                        <h3 data-translate="features.bulk.title">فحص ملفات الأرقام</h3>
+                        <p data-translate="features.bulk.desc">ارفع ملف نصي وافحص جميع الأرقام دفعة واحدة</p>
                     </div>
                     <div class="feature-card">
                         <i class="fas fa-flag"></i>
-                        <h3>معلومات البلد</h3>
-                        <p>اعرف البلد وعلمه لأي رقم هاتف</p>
+                        <h3 data-translate="features.country.title">معلومات البلد</h3>
+                        <p data-translate="features.country.desc">اعرف البلد وعلمه لأي رقم هاتف</p>
                     </div>
                 </div>
             </div>
@@ -65,20 +141,20 @@
 
         <section class="pricing">
             <div class="container">
-                <h2>الباقات</h2>
+                <h2 data-translate="pricing.title">الباقات</h2>
                 <div class="pricing-grid">
                     <div class="pricing-card">
-                        <h3>الباقة الأساسية</h3>
+                        <h3 data-translate="pricing.basic">الباقة الأساسية</h3>
                         <div class="price">$10</div>
                         <ul>
                             <li>1000 فحص شهرياً</li>
                             <li>فحص مشغل الشبكة</li>
                             <li>معلومات البلد</li>
                         </ul>
-                        <a href="register.html" class="btn btn-primary">اشترك الآن</a>
+                        <a href="register.html" class="btn btn-primary" data-translate="pricing.subscribe">اشترك الآن</a>
                     </div>
                     <div class="pricing-card featured">
-                        <h3>الباقة المتقدمة</h3>
+                        <h3 data-translate="pricing.advanced">الباقة المتقدمة</h3>
                         <div class="price">$25</div>
                         <ul>
                             <li>5000 فحص شهرياً</li>
@@ -87,10 +163,10 @@
                             <li>معلومات البلد</li>
                             <li>رفع الملفات</li>
                         </ul>
-                        <a href="register.html" class="btn btn-primary">اشترك الآن</a>
+                        <a href="register.html" class="btn btn-primary" data-translate="pricing.subscribe">اشترك الآن</a>
                     </div>
                     <div class="pricing-card">
-                        <h3>الباقة الاحترافية</h3>
+                        <h3 data-translate="pricing.professional">الباقة الاحترافية</h3>
                         <div class="price">$50</div>
                         <ul>
                             <li>فحص غير محدود</li>
@@ -98,7 +174,7 @@
                             <li>دعم أولوية</li>
                             <li>API متقدم</li>
                         </ul>
-                        <a href="register.html" class="btn btn-primary">اشترك الآن</a>
+                        <a href="register.html" class="btn btn-primary" data-translate="pricing.subscribe">اشترك الآن</a>
                     </div>
                 </div>
             </div>
@@ -111,6 +187,11 @@
         </div>
     </footer>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="js/language.js"></script>
     <script src="script.js"></script>
+    <script src="js/guest-checker.js"></script>
 </body>
 </html>

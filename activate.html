@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفعيل الحساب - فاحص أرقام الهواتف</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/3d-effects.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-page-title="auth.activate">
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2><i class="fas fa-phone"></i> فاحص الأرقام</h2>
+                </div>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link" data-translate="nav.home">الرئيسية</a>
+                    <a href="login.html" class="nav-link" data-translate="nav.login">تسجيل الدخول</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2><i class="fas fa-shield-alt"></i> <span data-translate="auth.activate">تفعيل الحساب</span></h2>
+                    <p>أدخل رمز التفعيل المرسل إليك عبر التيليجرام</p>
+                </div>
+                
+                <form id="activationForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> <span data-translate="auth.username">اسم المستخدم</span></label>
+                        <input type="text" id="username" name="username" required readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="activation_code"><i class="fas fa-key"></i> <span data-translate="auth.activation_code">رمز التفعيل</span></label>
+                        <input type="text" id="activation_code" name="activation_code" required maxlength="6" placeholder="123456">
+                        <small class="form-hint">رمز مكون من 6 أرقام صالح لمدة 30 ثانية</small>
+                    </div>
+                    
+                    <div id="countdown" class="countdown-timer" style="display: none;">
+                        <i class="fas fa-clock"></i>
+                        <span>انتهاء الصلاحية خلال: <span id="timeRemaining">30</span> ثانية</span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full" data-translate="auth.activate">تفعيل الحساب</button>
+                    
+                    <div class="auth-footer">
+                        <p>لم تتلق الرمز؟ <a href="#" id="resendCode">إعادة إرسال</a></p>
+                        <p><a href="register.html">العودة للتسجيل</a></p>
+                    </div>
+                </form>
+                
+                <div id="activationMessage" class="message" style="display: none;"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 فاحص أرقام الهواتف. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="js/language.js"></script>
+    <script src="script.js"></script>
+    <script>
+        let countdownInterval;
+        let pendingActivation;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load pending activation data
+            pendingActivation = JSON.parse(localStorage.getItem('pendingActivation'));
+            
+            if (!pendingActivation) {
+                showMessage('لا توجد عملية تفعيل معلقة', 'error');
+                setTimeout(() => {
+                    window.location.href = 'register.html';
+                }, 2000);
+                return;
+            }
+            
+            // Fill username
+            document.getElementById('username').value = pendingActivation.username;
+            
+            // Start countdown
+            startCountdown();
+        });
+        
+        function startCountdown() {
+            const expiryTime = new Date(pendingActivation.activation_expires).getTime();
+            const now = new Date().getTime();
+            let timeRemaining = Math.max(0, Math.floor((expiryTime - now) / 1000));
+            
+            if (timeRemaining <= 0) {
+                showExpiredMessage();
+                return;
+            }
+            
+            const countdownElement = document.getElementById('countdown');
+            const timeElement = document.getElementById('timeRemaining');
+            
+            countdownElement.style.display = 'block';
+            
+            countdownInterval = setInterval(() => {
+                timeRemaining--;
+                timeElement.textContent = timeRemaining;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                    showExpiredMessage();
+                }
+            }, 1000);
+        }
+        
+        function showExpiredMessage() {
+            document.getElementById('countdown').style.display = 'none';
+            showMessage('انتهت صلاحية رمز التفعيل. يرجى إعادة التسجيل.', 'error');
+            setTimeout(() => {
+                localStorage.removeItem('pendingActivation');
+                window.location.href = 'register.html';
+            }, 3000);
+        }
+        
+        document.getElementById('activationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'جاري التفعيل...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('api/index.php?endpoint=activate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: data.username,
+                        code: data.activation_code
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    clearInterval(countdownInterval);
+                    localStorage.removeItem('pendingActivation');
+                    showMessage('تم تفعيل الحساب بنجاح! سيتم توجيهك لتسجيل الدخول.', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showMessage(result.error || 'رمز التفعيل غير صحيح', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Activation error:', error);
+                showMessage('حدث خطأ في الاتصال بالسيرفر', 'error');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        document.getElementById('resendCode').addEventListener('click', function(e) {
+            e.preventDefault();
+            // TODO: Implement resend functionality
+            showMessage('سيتم إضافة ميزة إعادة الإرسال قريباً', 'info');
+        });
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('activationMessage');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
