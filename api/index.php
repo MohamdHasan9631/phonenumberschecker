@@ -123,6 +123,9 @@ class PhoneCheckerAPI {
                 'Bulk Check Completed',
                 'Your bulk phone number check has been completed successfully. ' . count($results) . ' numbers processed.'
             );
+            
+            // Send Telegram notification if user has Telegram username
+            $this->sendTelegramNotification($user_id, 'Bulk Check Completed', 'Your bulk phone number check has been completed successfully. ' . count($results) . ' numbers processed.');
         }
         
         return $this->successResponse([
@@ -356,9 +359,60 @@ class PhoneCheckerAPI {
     }
     
     private function sendTelegramActivation($telegram_username, $code) {
-        // TODO: Implement Telegram bot integration
-        // For now, just log the activation code
-        error_log("Activation code for $telegram_username: $code");
+        if (!$telegram_username) {
+            error_log("No Telegram username provided for activation code: $code");
+            return false;
+        }
+        
+        // Call Python Telegram bot script
+        $script_path = __DIR__ . '/../scripts/telegram_bot.py';
+        $command = escapeshellcmd("python3 $script_path") . ' activate ' . 
+                  escapeshellarg($telegram_username) . ' ' . 
+                  escapeshellarg($code);
+        
+        $output = shell_exec($command);
+        
+        if ($output) {
+            $result = json_decode($output, true);
+            if ($result && $result['success']) {
+                error_log("Activation code sent successfully to @$telegram_username: $code");
+                return true;
+            }
+        }
+        
+        error_log("Failed to send activation code to @$telegram_username: $code");
+        return false;
+    }
+    
+    private function sendTelegramNotification($user_id, $title, $message) {
+        // Get user's Telegram username
+        $stmt = $this->db->prepare("SELECT telegram_username FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch();
+        
+        if (!$user || !$user['telegram_username']) {
+            return false;
+        }
+        
+        $telegram_username = $user['telegram_username'];
+        $script_path = __DIR__ . '/../scripts/telegram_bot.py';
+        $command = escapeshellcmd("python3 $script_path") . ' notify ' . 
+                  escapeshellarg($telegram_username) . ' ' . 
+                  escapeshellarg($title) . ' ' . 
+                  escapeshellarg($message);
+        
+        $output = shell_exec($command);
+        
+        if ($output) {
+            $result = json_decode($output, true);
+            if ($result && $result['success']) {
+                error_log("Notification sent successfully to @$telegram_username: $title");
+                return true;
+            }
+        }
+        
+        error_log("Failed to send notification to @$telegram_username: $title");
+        return false;
     }
     
     private function generateToken($user_id) {

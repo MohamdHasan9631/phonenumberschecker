@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - فاحص أرقام الهواتف</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/3d-effects.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 </head>
-<body>
+<body data-page-title="dashboard.title">
     <header>
         <nav class="navbar">
             <div class="nav-container">
@@ -15,10 +18,10 @@
                     <h2><i class="fas fa-phone"></i> فاحص الأرقام</h2>
                 </div>
                 <div class="nav-menu">
-                    <a href="dashboard.html" class="nav-link active">لوحة التحكم</a>
+                    <a href="dashboard.html" class="nav-link active" data-translate="nav.dashboard">لوحة التحكم</a>
                     <a href="orders.html" class="nav-link">الطلبات</a>
                     <div class="user-info">
-                        <span id="userEmail"></span>
+                        <span id="userInfo"></span>
                         <button onclick="logout()" class="btn btn-small">تسجيل خروج</button>
                     </div>
                 </div>
@@ -28,15 +31,44 @@
 
     <main class="dashboard-main">
         <div class="container">
+            <!-- Notifications Section -->
+            <div class="notifications-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bell"></i> <span data-translate="dashboard.notifications">الإشعارات</span></h2>
+                    <button id="markAllRead" class="btn btn-small">وضع علامة قراءة على الكل</button>
+                </div>
+                <div id="notificationsList" class="notifications-list">
+                    <!-- Notifications will be loaded here -->
+                </div>
+            </div>
+
             <!-- User Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-search"></i>
+                        <i class="fas fa-coins"></i>
                     </div>
                     <div class="stat-info">
-                        <h3 id="remainingCredits">0</h3>
-                        <p>الفحوصات المتبقية</p>
+                        <h3 id="remainingCredits" data-translate="dashboard.credits">0</h3>
+                        <p>الرصيد المتبقي</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="todayChecks" data-translate="dashboard.checks_today">0</h3>
+                        <p>فحوصات اليوم</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalChecks" data-translate="dashboard.total_checks">0</h3>
+                        <p>إجمالي الفحوصات</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -44,24 +76,14 @@
                         <i class="fas fa-crown"></i>
                     </div>
                     <div class="stat-info">
-                        <h3 id="userPlan">-</h3>
+                        <h3 id="userPlan">Premium</h3>
                         <p>الباقة الحالية</p>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalChecks">0</h3>
-                        <p>إجمالي الفحوصات</p>
-                    </div>
-                </div>
             </div>
-
             <!-- Phone Number Checker -->
             <div class="checker-section">
-                <h2><i class="fas fa-search"></i> فحص أرقام الهواتف</h2>
+                <h2><i class="fas fa-search"></i> <span data-translate="checker.title">فحص أرقام الهواتف</span></h2>
                 
                 <div class="checker-tabs">
                     <button class="tab-btn active" onclick="switchTab('single')">فحص رقم واحد</button>
@@ -74,9 +96,9 @@
                         <form id="singleNumberForm">
                             <div class="form-group">
                                 <label for="phoneNumber">
-                                    <i class="fas fa-phone"></i> رقم الهاتف
+                                    <i class="fas fa-phone"></i> <span data-translate="checker.phone_number">رقم الهاتف</span>
                                 </label>
-                                <input type="tel" id="phoneNumber" placeholder="مثال: +966501234567" required>
+                                <input type="tel" id="phoneNumber" placeholder="+966501234567" required>
                             </div>
                             
                             <div class="checker-options">
@@ -98,7 +120,7 @@
                             </div>
                             
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i> فحص الرقم
+                                <i class="fas fa-search"></i> <span data-translate="checker.check">فحص الرقم</span>
                             </button>
                         </form>
                         
@@ -112,9 +134,92 @@
                         <form id="bulkNumberForm">
                             <div class="form-group">
                                 <label for="numberFile">
-                                    <i class="fas fa-file-upload"></i> ارفع ملف الأرقام
+                                    <i class="fas fa-file-upload"></i> <span data-translate="checker.bulk_upload">ارفع ملف الأرقام</span>
                                 </label>
                                 <input type="file" id="numberFile" accept=".txt,.csv" required>
+                                <small class="form-hint">الحد الأقصى: 1000 رقم | تنسيقات مدعومة: TXT, CSV</small>
+                            </div>
+                            
+                            <div class="checker-options">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="bulkCheckNetwork" checked>
+                                    <span class="checkmark"></span>
+                                    فحص مشغل الشبكة
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="bulkCheckWhatsapp">
+                                    <span class="checkmark"></span>
+                                    فحص الواتساب
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="bulkCheckCountry" checked>
+                                    <span class="checkmark"></span>
+                                    معلومات البلد
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> رفع وفحص الملف
+                            </button>
+                        </form>
+                        
+                        <div id="bulkProgress" class="progress-section" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <p id="progressText">جاري المعالجة...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-table"></i> <span data-translate="checker.results">نتائج الفحص</span></h2>
+                    <div class="export-buttons">
+                        <button id="exportCSV" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> تصدير CSV
+                        </button>
+                        <button id="exportTXT" class="btn btn-secondary">
+                            <i class="fas fa-file-text"></i> تصدير TXT
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="resultsTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>رقم الهاتف</th>
+                                <th>صحيح</th>
+                                <th>البلد</th>
+                                <th>المشغل</th>
+                                <th>النوع</th>
+                                <th>العلم</th>
+                                <th>تاريخ الفحص</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 فاحص أرقام الهواتف. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="js/language.js"></script>
+    <script src="script.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
                                 <small class="form-hint">يدعم ملفات .txt و .csv (رقم واحد في كل سطر)</small>
                             </div>
                             
