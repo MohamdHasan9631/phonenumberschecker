@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001 >nul
 :: 🚀 فاحص أرقام الهواتف - سكريبت التشغيل السريع لنظام Windows
 :: Phone Number Checker - Quick Setup Script for Windows
